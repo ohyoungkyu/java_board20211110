@@ -1,5 +1,7 @@
 package board;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class BoardMain {
@@ -7,19 +9,46 @@ public class BoardMain {
 		
 		Scanner sc = new Scanner(System.in);
 		
-		// 입력 출력
-		System.out.println("출력");
+	    List<Article> articles = new ArrayList<>();
+    	int lastId = 1;
 		
-		// 입력 -> 입력이 완료될 때까지 대기
-		String str1 = sc.nextLine();
-		String str2 = sc.nextLine();
-		
-		System.out.println("입력값 : " + str1);
-		System.out.println("입력값 : " + str2);
-		
-		int num1 = Integer.parseInt(sc.nextLine());
-		int num2 = Integer.parseInt(sc.nextLine());
-		
-		System.out.println(num1 + num2);
+		while(true) {
+		System.out.printf("명령어 : ");
+	    String command = sc.nextLine();
+
+	    command.trim();
+	    
+	    if(command.length() == 0) {
+	    	continue;
+	    }
+	    
+	    if(command.equals("list")) {
+	    	System.out.printf("=== 게시물 목록 ===\n");
+	    	for(int i = 0; i < articles.size(); i++) {
+	    		Article currentArticle = articles.get(i);
+	    		System.out.printf("%d    |   %s\n", currentArticle.id, currentArticle.title);
+	    	}
+	    }
+	    
+	    else if(command.equals("write")) {
+	    	
+	    	int id = lastId++;
+	    	
+	    	System.out.printf("제목 : ");
+	    	String title = sc.nextLine();
+	    	
+	    	System.out.printf("내용 : ");
+	    	String body = sc.nextLine();
+	    	
+	    	Article article = new Article(id, title, body);
+	    	
+	    	articles.add(article);
+	    		    	
+	    	System.out.printf("게시물 등록이 완료되었습니다.\n");
+	    	
+	    } else {
+	    	System.out.printf("%s는 존재하지 않는 명령어입니다.\n", command);
+	    	}
+		}
 	}
 }
