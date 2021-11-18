@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import board.controller.ArticleController;
+import board.controller.MemberController;
 import board.dto.Article;
 import board.dto.Member;
 import board.util.Util;
@@ -24,6 +26,9 @@ public class App {
 
 		Scanner sc = new Scanner(System.in);
 
+		MemberController memberController = new MemberController(sc, members);
+		ArticleController articleController = new ArticleController(sc, articles);
+
 		while (true) {
 			System.out.print("명령어 : ");
 			String command = sc.nextLine();
@@ -33,95 +38,51 @@ public class App {
 			if (command.length() == 0) {
 				continue;
 			}
-			
-			else if (command.equals("member join")) {
-
-				int id = members.size() + 1;
-
-				System.out.printf("로그인 아이디 : ");
-				String loginId = sc.nextLine();
-				
-				String loginPw = null;
-				String loginPwConfirm = null;
-
-			while(true) {
-				System.out.printf("로그인 비밀번호 : ");
-				loginPw = sc.nextLine();
-				
-				System.out.printf("로그인 비밀번호 확인: ");
-				loginPwConfirm = sc.nextLine();
-				
-				if(loginPw.equals(loginPwConfirm) == false) {
-					System.out.println("비밀번호를 다시 입력해주세요.");
-					continue;
-				}
-				break;
-			}
-				
-				System.out.printf("이름 : ");
-				String name = sc.nextLine();
-
-				String regDate = Util.getCurrentDate();
-
-				Member member = new Member(id, regDate , loginId, loginPw, name);
-				members.add(member);
-
-				System.out.printf("%s번 회원님 환영합니다.\n", name);
-
+			if (command.equals("member join")) {
+				memberController.doJoin();
 			}
 
-			if (command.startsWith("article list")) {	
+			else if (command.startsWith("article list")) {
 				
-				if(articles.size() == 0) {
+				if (articles.size() == 0) {
 					System.out.println("게시물이 없습니다.");
 					continue;
-				}	
-								
-				String searchKeyword = command.substring("article list".length()).trim();			
-				
+				}
+
+				String searchKeyword = command.substring("article list".length()).trim();
+
 				List<Article> forListArticles = articles;
-				
-				if(searchKeyword.length() > 0) {
+
+				if (searchKeyword.length() > 0) {
 					forListArticles = new ArrayList<>();
-					
-					for(Article article : articles) {
-						if(article.title.contains(searchKeyword)) {
+
+					for (Article article : articles) {
+						if (article.title.contains(searchKeyword)) {
 							forListArticles.add(article);
 						}
 					}
-					
-					if(forListArticles.size() == 0) {
+
+					if (forListArticles.size() == 0) {
 						System.out.println("검색결과가 존재하지 않습니다.");
 						continue;
 					}
-				}				
-				
-				System.out.printf("=== 게시물 목록 ===");	
+				}
+
+//				System.out.printf("검색어 : %s\n",searchKeyword);
+
+				System.out.printf("=== 게시물 목록 ===\n");
 				System.out.println("번호  |     날짜    |  제목  |  조회수");
+
 				for (int i = forListArticles.size() - 1; i >= 0; i--) {
 					Article currentArticle = forListArticles.get(i);
 					System.out.printf("%3d  | %4s | %4s  | %4d\n", currentArticle.id, currentArticle.regDate,
 							currentArticle.title, currentArticle.hit);
 				}
-			}			
-			
+			}
 
 			else if (command.equals("article write")) {
-
-				int id = articles.size() + 1;
-
-				System.out.printf("제목 : ");
-				String title = sc.nextLine();
-
-				System.out.printf("내용 : ");
-				String body = sc.nextLine();
-
-				String currentDate = Util.getCurrentDate();
-
-				Article article = new Article(id, title, body, currentDate);
-				articles.add(article);
-
-				System.out.printf("%d번 게시물 등록이 완료되었습니다.\n", id);
+				articleController.doWrite();
+				
 
 			} else if (command.startsWith("article detail ")) {
 
@@ -186,7 +147,7 @@ public class App {
 			} else if (command.equals("system exit")) {
 				System.out.println("프로그램을 종료합니다.");
 				break;
-			}  else {
+			} else {
 				System.out.printf("%s는 존재하지 않는 명령어입니다.\n", command);
 			}
 		}
@@ -206,13 +167,6 @@ public class App {
 
 	private Article getArticleById(int id) {
 
-//		for (int i = 0; i < articles.size(); i++) {
-//			Article article = articles.get(i);
-//			
-//			if(article.id == id) {
-//				return article;
-//			}
-//		}
 		int index = getArticleIndexById(id);
 
 		if (index != -1) {
